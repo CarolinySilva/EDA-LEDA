@@ -1,0 +1,84 @@
+package adt.linkedList.set;
+
+import adt.linkedList.SingleLinkedListImpl;
+import adt.linkedList.SingleLinkedListNode;
+
+public class SetLinkedListImpl<T> extends SingleLinkedListImpl<T> implements
+		SetLinkedList<T> {
+	@Override
+	public void removeDuplicates() {
+		if (!isEmpty()) {
+			SingleLinkedListNode<T> aux1 = head;
+			SingleLinkedListNode<T> current = head.getNext();
+
+			while (!aux1.isNIL()) {
+				while (!current.isNIL()) {
+					if (aux1.getData().equals(current.getData())) {
+						this.remove(current.getData());
+					}
+
+					current = current.getNext();
+
+				}
+
+				aux1 = aux1.getNext();
+				current = aux1.getNext();
+			}
+		}
+
+	}
+
+	@Override
+	public SetLinkedList<T> union(SetLinkedList<T> otherSet) {
+		SetLinkedList<T> retorno = otherSet;
+
+		T[] uniao = toArray();
+
+		for (int i = 0; i < uniao.length; i++) {
+
+			if (retorno.search(uniao[i]) == null) {
+				retorno.insert(uniao[i]);
+			}
+
+		}
+
+		return retorno;
+
+	}
+
+	@Override
+	public SetLinkedList<T> intersection(SetLinkedList<T> otherSet) {
+		SetLinkedList<T> retorno = otherSet;
+
+		T[] inter = retorno.toArray();
+
+		for (int i = 0; i < inter.length; i++) {
+			if (inter[i] != search(inter[i])) {
+				retorno.remove(inter[i]);
+			}
+		}
+
+		return retorno;
+	}
+
+	@Override
+	public void concatenate(SetLinkedList<T> otherSet) {
+		SingleLinkedListImpl<T> newList = new SingleLinkedListImpl<T>();
+
+		T[] other = otherSet.toArray();
+
+		for (int i = 0; i < other.length; i++) {
+			newList.insert(other[i]);
+
+		}
+
+		SingleLinkedListNode<T> aux = this.head;
+
+		while (!aux.getNext().isNIL()) {
+			aux = aux.getNext();
+		}
+
+		aux.setNext(newList.getHead());
+
+	}
+}

@@ -1,0 +1,210 @@
+package adt.btree;
+
+public class BTreeImpl<T extends Comparable<T>> implements BTree<T> {
+
+	protected BNode<T> root;
+	protected int order;
+
+	public BTreeImpl(int order) {
+		this.order = order;
+		this.root = new BNode<T>(order);
+	}
+
+	@Override
+	public BNode<T> getRoot() {
+		return this.root;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return this.root.isEmpty();
+	}
+
+	@Override
+	public int height() {
+		int result;
+		// Arvore vazia
+		if (getRoot().isEmpty()) {
+			result = -1;
+		} else {
+			result = height(this.root);
+		}
+		return result;
+
+	}
+
+	private int height(BNode<T> node) {
+		if (node.isLeaf()) {
+			return 0;
+		}
+
+		else {
+			return 1 + height(node.getChildren().getFirst());
+		}
+	}
+
+	@Override
+	public BNode<T>[] depthLeftOrder() {
+		BNode<T>[] array = new BNode[numberOfNodes(root)];
+
+		depthLeftOrder(array, 0, root);
+
+		return array;
+	}
+
+	private int depthLeftOrder(BNode<T> array[], int index, BNode<T> node) {
+		if (!node.isEmpty()) {
+			array[index++] = node;
+
+			for (int i = 0; i < node.children.size(); i++) {
+				index = depthLeftOrder(array, index, node.children.get(i));
+			}
+		}
+
+		return index;
+	}
+
+	// Quantidade de nós
+	private int numberOfNodes(BNode<T> node) {
+		if (node.isEmpty()) {
+			return 0;
+		} else {
+			int result = 1;
+
+			for (BNode<T> nodeAux : node.getChildren())
+				result += numberOfNodes(nodeAux);
+
+			return result;
+		}
+	}
+
+	@Override
+	public int size() {
+		return size(this.root);
+	}
+
+	private int size(BNode<T> node) {
+		int result = 0;
+
+		result += node.getElements().size();
+
+		for (BNode<T> nodeAux : node.getChildren()) {
+			result += size(nodeAux);
+		}
+
+		return result;
+	}
+
+	@Override
+	public BNodePosition<T> search(T element) {
+		return search(element, root);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private BNodePosition<T> search(T element, BNode<T> node) {
+
+		int i = 0;
+
+		while (i < node.getElements().size()
+				&& node.getElementAt(i).compareTo(element) < 0)
+			i++;
+
+		if (i < node.getElements().size()
+				&& node.getElementAt(i).equals(element))
+			return new BNodePosition<T>(node, i);
+
+		if (node.isLeaf()) {
+			return new BNodePosition<T>(null, -1);
+		}
+		return search(element, node.getChildren().get(i));
+	}
+
+	@Override
+	public void insert(T element) {
+		insert(element, getRoot());
+	}
+
+	private void insert(T element, BNode<T> node) {
+
+		if (!node.isLeaf()) {
+			int i = 0;
+			while (i < node.size()
+					&& node.getElementAt(i).compareTo(element) < 0)
+				i++;
+
+			insert(element, node.getChildren().get(i));
+		} else {
+			node.addElement(element);
+		}
+
+		if (node.getMaxKeys() < node.size()) {
+			split(node);
+		}
+
+	}
+
+	private void split(BNode<T> node) {
+		int median = node.size() / 2;
+		T mid = node.getElementAt(median);
+
+		BNode<T> left = node.copyLeftChildren(median);
+		BNode<T> right = node.copyRightChildren(median);
+
+		if (node == root) {
+			BNode<T> newRoot = new BNode<T>(node.getOrder());
+			newRoot.addElement(mid);
+			node.setParent(newRoot);
+			root = newRoot;
+
+			for (int i = 0; i < node.getChildren().size(); i++) {
+				if (i <= median) {
+					left.addChild(i, node.getChildren().get(i));
+				} else {
+					right.addChild(i - median - 1, node.getChildren().get(i));
+				}
+			}
+			newRoot.addChild(0, left);
+			newRoot.addChild(1, right);
+			newRoot.getChildren().get(0).setParent(newRoot);
+			newRoot.getChildren().get(1).setParent(newRoot);
+		} else {
+			promote(node);
+		}
+	}
+
+	private void promote(BNode<T> node) {
+		BNode<T> parent = node.getParent();
+		T mid = node.getElementAt(node.getOrder() / 2);
+		parent.addElement(mid);
+
+		int median = parent.getElements().indexOf(mid);
+		parent.removeChild(node);
+
+		node.getChildren().get(0).setParent(parent);
+		node.getChildren().get(1).setParent(parent);
+
+		node.getParent().removeChild(node);
+		node.getParent().addChild(median, node.getChildren().get(1));
+		node.getParent().addChild(median, node.getChildren().get(0));
+	}
+
+	// NAO PRECISA IMPLEMENTAR OS METODOS ABAIXO
+	@Override
+	public BNode<T> maximum(BNode<T> node) {
+		// NAO PRECISA IMPLEMENTAR
+		throw new UnsupportedOperationException("Not Implemented yet!");
+	}
+
+	@Override
+	public BNode<T> minimum(BNode<T> node) {
+		// NAO PRECISA IMPLEMENTAR
+		throw new UnsupportedOperationException("Not Implemented yet!");
+	}
+
+	@Override
+	public void remove(T element) {
+		// NAO PRECISA IMPLEMENTAR
+		throw new UnsupportedOperationException("Not Implemented yet!");
+	}
+
+}

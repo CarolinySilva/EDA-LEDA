@@ -1,0 +1,72 @@
+package sorting.linearSorting;
+
+import sorting.AbstractSorting;
+
+/**
+ * Classe que implementa do Counting Sort vista em sala. Desta vez este
+ * algoritmo deve satisfazer os seguitnes requisitos: - Alocar o tamanho minimo
+ * possivel para o array de contadores (C) - Ser capaz de ordenar arrays
+ * contendo numeros negativos
+ */
+public class ExtendedCountingSort extends AbstractSorting<Integer> {
+
+	public void sort(Integer[] array, int leftIndex, int rightIndex) {
+
+		Integer max = max(array, leftIndex, rightIndex);
+		Integer min = min(array, leftIndex, rightIndex);
+		int[] cont = new int[max - min + 1];
+
+		int[] resposta = new int[rightIndex - leftIndex + 1];
+
+		for (int i = leftIndex; i <= rightIndex; i++) {
+			cont[array[i] - min]++;
+		}
+
+		for (int j = 1; j < cont.length; j++) {
+			cont[j] += cont[j - 1];
+		}
+
+		for (int i = rightIndex; i >= leftIndex; i--) {
+			resposta[cont[array[i] - min]-- - 1] = array[i];
+		}
+
+		int indice = 0;
+		for (int i = leftIndex; i <= rightIndex; i++) {
+			array[i] = resposta[indice];
+			indice++;
+		}
+
+	}
+
+	public int max(Integer[] array, int leftIndex, int rightIndex) {
+		int max = Integer.MIN_VALUE;
+
+		for (int i = leftIndex; i <= rightIndex; i++) {
+
+			if (array[i] > max) {
+
+				max = array[i];
+
+			}
+
+		}
+		return max;
+	}
+
+	public int min(Integer[] array, int leftIndex, int rightIndex) {
+		int min = Integer.MAX_VALUE;
+
+		for (int i = leftIndex; i <= rightIndex; i++) {
+
+			if (array[i] < min) {
+
+				min = array[i];
+
+			}
+
+		}
+		return min;
+
+	}
+
+}

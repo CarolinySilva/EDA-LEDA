@@ -1,0 +1,106 @@
+package problems;
+
+import java.util.Arrays;
+
+/**
+ * Calcula o floor e ceil de um numero em um array usando a estrategia de busca
+ * binaria.
+ * 
+ * Restricoes: - Algoritmo in-place (nao pode usar memoria extra a nao ser
+ * variaveis locais) - O tempo de seu algoritmo deve ser O(log n).
+ * 
+ * @author Adalberto
+ *
+ */
+public class FloorCeilBinarySearch implements FloorCeil {
+
+	@Override
+	public Integer floor(Integer[] array, Integer x) {
+		Arrays.sort(array);
+		return floor(array, x, 0, array.length - 1);
+	}
+
+	public static Integer floor(Integer[] array, Integer x, int leftIndex,
+			int rightIndex) {
+		Integer res = null;
+
+		if (leftIndex <= rightIndex) {
+
+			int middle = (leftIndex + rightIndex) / 2;
+
+			if (x.equals(array[middle])) {
+				res = x;
+
+			} else if (x < array[middle]) {
+				if (middle > 0) {
+
+					if (array[middle - 1] < x) {
+						res = array[middle - 1];
+
+					} else {
+						res = floor(array, x, leftIndex, middle - 1);
+
+					}
+
+				}
+
+			} else {
+
+				if (leftIndex == rightIndex) {
+					res = array[leftIndex];
+
+				} else {
+					res = floor(array, x, middle + 1, rightIndex);
+				}
+
+			}
+
+		}
+		return res;
+
+	}
+
+	@Override
+	public Integer ceil(Integer[] array, Integer x) {
+		Arrays.sort(array);
+		return ceil(array, x, 0, array.length - 1);
+	}
+
+	public static Integer ceil(Integer[] array, Integer x, int leftIndex,
+			int rightIndex) {
+		Integer res = null;
+
+		if (leftIndex <= rightIndex) {
+
+			int middle = (leftIndex + rightIndex) / 2;
+
+			if (x.equals(array[middle])) {
+				res = x;
+
+			} else if (x < array[middle]) {
+
+				if (leftIndex == rightIndex) {
+					res = array[leftIndex];
+
+				} else {
+					res = ceil(array, x, leftIndex, middle - 1);
+				}
+
+			} else {
+
+				if (middle < array.length - 1) {
+					if (array[middle + 1] > x) {
+						res = array[middle + 1];
+					} else {
+						res = ceil(array, x, middle + 1, rightIndex);
+					}
+				}
+
+			}
+
+		}
+		return res;
+
+	}
+
+}
